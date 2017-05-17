@@ -1,0 +1,23 @@
+{
+  "name": "iexplore-server",
+  "version": "1.0.0",
+  "description": "Server for iExplore App.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/446DayDayUp/Server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/446DayDayUp/Server/issues"
+  },
+  "homepage": "https://github.com/446DayDayUp/Server#readme",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
