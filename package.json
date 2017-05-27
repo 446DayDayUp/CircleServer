@@ -1,5 +1,5 @@
 {
-  "name": "iexplore-server",
+  "name": "circle-server",
   "version": "1.0.0",
   "description": "Server for iExplore App.",
   "main": "index.js",
