@@ -4,7 +4,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js');
-const {getSquireCord} = require('./lib/location.js');
+const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
 const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
@@ -28,13 +28,17 @@ app.get('/get-chat-rooms', (req, res) => {
     res.status(500).send('Need params: lat, lng, range!');
   }
   if (!database) res.status(500).send('Database uninitialized!');
-  let {top, btm, rgt, lft} = getSquireCord(parseFloat(lat), parseFloat(lng), parseFloat(range));
+  if (range > 10000) res.status(500).send('Range longer than 10km are not allowed!');
+  let {top, btm, rgt, lft} =
+      getSquireCord(parseFloat(lat), parseFloat(lng), parseFloat(range));
   database.collection('chatGroups').find({
     $and: [{lat: {$gt: btm, $lt: top}},
-        {lng: {$gt:lft , $lt: rgt}}]})
-    .toArray((err, docs) => {
+        {lng: {$gt: lft, $lt: rgt}}]})
+    .toArray((err, groups) => {
       if (err) res.status(500).send(err.toString());
-      res.send(docs);
+      groups.filter((group) =>
+          mBetweenCoords(group.lat, group.lng, lat, lng) < range);
+      res.send(groups);
     });
 });
 
