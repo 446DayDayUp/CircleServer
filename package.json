@@ -1,10 +1,11 @@
 {
   "name": "circle-server",
   "version": "1.0.0",
-  "description": "Server for iExplore App.",
+  "description": "Server for Circle.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./node_modules/.bin/eslint lib/** index.js; exit 0",
+    "test": "jasmine JASMINE_CONFIG_PATH=jasmine.json",
     "start": "node index"
   },
   "repository": {
@@ -21,5 +22,10 @@
     "express": "^4.15.3",
     "mongodb": "^2.2.27",
     "socket.io": "^2.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.7.1",
+    "jasmine": "^2.6.0"
   }
 }

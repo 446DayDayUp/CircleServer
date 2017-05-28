@@ -1,34 +1,47 @@
-var express = require('express')
-var app = express()
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
-var {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js')
+'use strict';
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js');
+const {getSquireCord} = require('./lib/location.js');
 
-var MongoClient = require('mongodb').MongoClient;
-var db_url = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
+const MongoClient = require('mongodb').MongoClient;
+const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
+let database = null;
 
-MongoClient.connect(db_url, function(err, db) {
-  console.log("Connected successfully to server");
-  db.collection('chatGroups').find({}).toArray(function(err, docs) {
-    console.log("Found the following records");
-    console.log(docs)
-  });
-  db.close();
+MongoClient.connect(DB_URL, (err, db) => {
+  database = db;
 });
 
-app.get('/', function (req, res) {
-  res.send('Hello world')
-})
+app.get('/', (req, res) => {
+  res.send('Hello world');
+});
 
-app.get('/create-chat-room', function (req, res) {
-  res.send('GET request to the homepage')
-})
+app.get('/create-chat-room', (req, res) => {
+  res.send('GET create chat room request');
+});
 
+app.get('/get-chat-rooms', (req, res) => {
+  let {lat, lng, range} = req.query;
+  if (!lat || !lng || !range) {
+    res.status(500).send('Need params: lat, lng, range!');
+  }
+  if (!database) res.status(500).send('Database uninitialized!');
+  let {top, btm, rgt, lft} = getSquireCord(parseFloat(lat), parseFloat(lng), parseFloat(range));
+  database.collection('chatGroups').find({
+    $and: [{lat: {$gt: btm, $lt: top}},
+        {lng: {$gt:lft , $lt: rgt}}]})
+    .toArray((err, docs) => {
+      if (err) res.status(500).send(err.toString());
+      res.send(docs);
+    });
+});
 
-io.on('connection', function(socket){
+io.on('connection', (socket) => {
   console.log('a user connected');
 });
 
-server.listen(process.env.PORT || 8000, function () {
-  console.log('Example app listening on port 8000!')
-})
+server.listen(process.env.PORT || 8000, () => {
+  console.log('Example app listening on port 8000!');
+});
