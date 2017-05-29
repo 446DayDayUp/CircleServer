@@ -9,6 +9,7 @@ const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 const MongoClient = require('mongodb').MongoClient;
 const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
 let database = null;
+const bodyParser = require('body-parser')
 
 MongoClient.connect(DB_URL, (err, db) => {
   database = db;
@@ -24,21 +25,23 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Add body parser.
+app.use(bodyParser.json());
+
 app.get('/', (req, res) => {
   res.send('Hello world');
-});
-
-app.get('/create-chat-room', (req, res) => {
-  res.send('GET create chat room request');
 });
 
 app.get('/get-chat-rooms', (req, res) => {
   let {lat, lng, range} = req.query;
   if (!lat || !lng || !range) {
     res.status(500).send('Need params: lat, lng, range!');
+    return;
   }
-  if (!database) res.status(500).send('Database uninitialized!');
-  if (range > 10000) res.status(500).send('Range longer than 10km are not allowed!');
+  if (!database) {
+    res.status(500).send('Database uninitialized!');
+    return;
+  }
   let {top, btm, rgt, lft} = getSquireCord(parseFloat(lat), parseFloat(lng), parseFloat(range));
   let query = [{lat: {$gt: btm, $lt: top}}, {lng: {$gt: lft, $lt: rgt}}]
   if (req.query.tag) {
@@ -53,11 +56,30 @@ app.get('/get-chat-rooms', (req, res) => {
     });
 });
 
-app.post('/login',function(req,res){
-  var user_name=req.body.user;
-  var password=req.body.password;
-  console.log("User name = "+user_name+", password is "+password);
-  res.end("yes");
+app.post('/create-chat-room',function(req,res){
+  let {name, tags, lat, lng, range} = req.body;
+  tags = tags || [];
+  if (!database) {
+    res.status(500).send('Database uninitialized!');
+    return;
+  }
+  if (!name || !lat || !lng || !range) {
+    res.status(500).send('Need params: lat, lng, range!');
+    return;
+  }
+  database.collection('chatGroups').insert({
+    name,
+    tags,
+    lat,
+    lng,
+    range,
+  }, (err, result) => {
+    if (err) {
+      res.status(500).send('Inser error: ', err.toString());
+    } else {
+      res.send(result.insertedIds[0]);
+    }
+  });
 });
 
 io.on('connection', (socket) => {
