@@ -28,9 +28,9 @@ app.use(function (req, res, next) {
 // Add body parser.
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello world');
-});
+app.get('/',function(req,res){
+    res.redirect('https://446daydayup.github.io/');
+})
 
 app.get('/get-chat-rooms', (req, res) => {
   let {lat, lng, range} = req.query;
