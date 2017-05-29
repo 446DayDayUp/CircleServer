@@ -14,6 +14,16 @@ MongoClient.connect(DB_URL, (err, db) => {
   database = db;
 });
 
+// Add headers
+app.use(function (req, res, next) {
+  // Set cros to be *.
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
+});
+
 app.get('/', (req, res) => {
   res.send('Hello world');
 });
@@ -41,6 +51,13 @@ app.get('/get-chat-rooms', (req, res) => {
           mBetweenCoords(group.lat, group.lng, lat, lng) < range);
       res.send(groups);
     });
+});
+
+app.post('/login',function(req,res){
+  var user_name=req.body.user;
+  var password=req.body.password;
+  console.log("User name = "+user_name+", password is "+password);
+  res.end("yes");
 });
 
 io.on('connection', (socket) => {
