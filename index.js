@@ -29,11 +29,12 @@ app.get('/get-chat-rooms', (req, res) => {
   }
   if (!database) res.status(500).send('Database uninitialized!');
   if (range > 10000) res.status(500).send('Range longer than 10km are not allowed!');
-  let {top, btm, rgt, lft} =
-      getSquireCord(parseFloat(lat), parseFloat(lng), parseFloat(range));
-  database.collection('chatGroups').find({
-    $and: [{lat: {$gt: btm, $lt: top}},
-        {lng: {$gt: lft, $lt: rgt}}]})
+  let {top, btm, rgt, lft} = getSquireCord(parseFloat(lat), parseFloat(lng), parseFloat(range));
+  let query = [{lat: {$gt: btm, $lt: top}}, {lng: {$gt: lft, $lt: rgt}}]
+  if (req.query.tag) {
+    query.push({tags: req.query.tag})
+  }
+  database.collection('chatGroups').find({$and: query})
     .toArray((err, groups) => {
       if (err) res.status(500).send(err.toString());
       groups.filter((group) =>
