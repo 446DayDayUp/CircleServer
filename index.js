@@ -51,7 +51,8 @@ app.get('/get-chat-rooms', (req, res) => {
     .toArray((err, groups) => {
       if (err) res.status(500).send(err.toString());
       groups.filter((group) =>
-          mBetweenCoords(group.lat, group.lng, lat, lng) < range);
+          mBetweenCoords(group.lat, group.lng, lat, lng) < range &&
+          mBetweenCoords(group.lat, group.lng, lat, lng) < group.range);
       res.send(groups);
     });
 });
