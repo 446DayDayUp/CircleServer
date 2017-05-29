@@ -44,6 +44,9 @@ app.get('/get-chat-rooms', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+  socket.on('chat', function(msg){
+    console.log('message: ' + msg);
+  });
   console.log('a user connected');
 });
 
