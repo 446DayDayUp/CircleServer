@@ -50,9 +50,12 @@ app.get('/get-chat-rooms', (req, res) => {
   database.collection('chatGroups').find({$and: query})
     .toArray((err, groups) => {
       if (err) res.status(500).send(err.toString());
-      groups.filter((group) =>
-          mBetweenCoords(group.lat, group.lng, lat, lng) < range &&
-          mBetweenCoords(group.lat, group.lng, lat, lng) < group.range);
+      groups = groups.filter((group) =>
+        mBetweenCoords(group.lat, group.lng, lat, lng) < range &&
+        mBetweenCoords(group.lat, group.lng, lat, lng) < group.range);
+      groups.forEach((group) => {
+        group.distance = parseInt(mBetweenCoords(group.lat, group.lng, lat, lng));
+      })
       res.send(groups);
     });
 });
