@@ -87,10 +87,18 @@ app.post('/create-chat-room',function(req,res){
 });
 
 io.on('connection', (socket) => {
-  socket.on('chat', function(msg){
-    console.log('message: ' + msg);
+  console.log(socket.id,' a user connected');
+  socket.on('disconnect', function () {
+    console.log(socket.id,' user disconnected');
   });
-  console.log('a user connected');
+  socket.on('chat', function(room, msg){
+    io.to(room).emit('chat', socket.id, msg);
+    console.log('message: ', msg, ' room: ', room);
+  });
+  socket.on('room', function (roomName) {
+    console.log(socket.id, ' joins ', roomName)
+    socket.join(roomName);
+  });
 });
 
 server.listen(process.env.PORT || 8000, () => {
