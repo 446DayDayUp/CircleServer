@@ -91,8 +91,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', function () {
     console.log(socket.id,' user disconnected');
   });
-  socket.on('chat', function(room, msg){
-    io.to(room).emit('chat', socket.id, msg);
+  socket.on('chat', function(room, userName, iconName, msg){
+    io.to(room).emit('chat', socket.id, userName, iconName, msg);
     console.log('message: ', msg, ' room: ', room);
   });
   socket.on('room', function (roomName) {
