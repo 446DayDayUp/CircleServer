@@ -11,6 +11,7 @@ const ObjectID = require('mongodb').ObjectID
 
 let database = null;
 const bodyParser = require('body-parser')
+let userRoomMap = {};
 
 MongoClient.connect(DB_URL, (err, db) => {
   database = db;
@@ -95,9 +96,9 @@ io.on('connection', (socket) => {
   console.log(socket.id,' a user connected');
 
   // When socket disconnect.
-  socket.on('disconnecting', function () {
-    let roomId = Object.keys(socket.rooms).filter((id) => id !== socket.id)[0];
-    console.log(socket.rooms);
+  socket.on('disconnect', function () {
+    let roomId = userRoomMap[socket.id];
+    delete userRoomMap[socket.id]
     console.log(roomId);
     console.log(socket.id,' user disconnected');
     database.collection('chatGroups').findOneAndUpdate(
@@ -119,6 +120,7 @@ io.on('connection', (socket) => {
   socket.on('room', function (roomId, userName) {
     console.log(socket.id, ' joins ', roomId)
     socket.join(roomId);
+    userRoomMap[socket.id] = roomId;
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
       { $inc: { numUsers: 1 } },
