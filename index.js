@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
       { $inc: { numUsers: -1 } },
       { returnOriginal: false },
       function (err, chatRoom) {
-        io.to(roomId).emit('leaveRoom', chatRoom.value.numUsers);
+        io.to(roomId).emit('leaveRoom', chatRoom.value.numUsers, socket.id);
       });
   });
 
