@@ -7,6 +7,7 @@ const {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js');
 const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID
 const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
 let database = null;
 const bodyParser = require('body-parser')
@@ -15,7 +16,7 @@ MongoClient.connect(DB_URL, (err, db) => {
   database = db;
 });
 
-// Add headers
+// Add headers for cross origin access
 app.use(function (req, res, next) {
   // Set cros to be *.
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,10 +29,12 @@ app.use(function (req, res, next) {
 // Add body parser.
 app.use(bodyParser.json());
 
+// Redirect to the landing page for the project.
 app.get('/',function(req,res){
-    res.redirect('https://446daydayup.github.io/');
+  res.redirect('https://446daydayup.github.io/');
 })
 
+// API for get and filter nearby chat rooms.
 app.get('/get-chat-rooms', (req, res) => {
   let {lat, lng, range} = req.query;
   if (!lat || !lng || !range) {
@@ -60,6 +63,7 @@ app.get('/get-chat-rooms', (req, res) => {
     });
 });
 
+// API for create chat room.
 app.post('/create-chat-room',function(req,res){
   let {name, tags, lat, lng, range} = req.body;
   tags = tags || [];
@@ -77,6 +81,7 @@ app.post('/create-chat-room',function(req,res){
     lat,
     lng,
     range,
+    numUsers: 0,
   }, (err, result) => {
     if (err) {
       res.status(500).send('Inser error: ', err.toString());
@@ -88,16 +93,38 @@ app.post('/create-chat-room',function(req,res){
 
 io.on('connection', (socket) => {
   console.log(socket.id,' a user connected');
-  socket.on('disconnect', function () {
+
+  // When socket disconnect.
+  socket.on('disconnecting', function () {
+    let roomId = Object.keys(socket.rooms).filter((id) => id !== socket.id)[0];
+    console.log(roomId);
     console.log(socket.id,' user disconnected');
+    database.collection('chatGroups').findOneAndUpdate(
+      { _id: new ObjectID(roomId) },
+      { $inc: { numUsers: -1 } },
+      { returnOriginal: false },
+      function (err, chatRoom) {
+        io.to(roomId).emit('leaveRoom', chatRoom.value.numUsers);
+      });
   });
+
+  // Receive and send chat messages.
   socket.on('chat', function(room, userName, iconName, msg){
     io.to(room).emit('chat', socket.id, userName, iconName, msg);
     console.log('message: ', msg, ' room: ', room);
   });
-  socket.on('room', function (roomName) {
-    console.log(socket.id, ' joins ', roomName)
-    socket.join(roomName);
+
+  // Socket enter a specific room by room id.
+  socket.on('room', function (roomId, userName) {
+    console.log(socket.id, ' joins ', roomId)
+    socket.join(roomId);
+    database.collection('chatGroups').findOneAndUpdate(
+      { _id: new ObjectID(roomId) },
+      { $inc: { numUsers: 1 } },
+      { returnOriginal: false },
+      function (err, chatRoom) {
+        io.to(roomId).emit('enterRoom', chatRoom.value.numUsers, userName);
+      });
   });
 });
 
