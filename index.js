@@ -95,12 +95,30 @@ app.post('/create-chat-room',function(req,res){
 io.on('connection', (socket) => {
   console.log(socket.id,' a user connected');
 
+  let socketTimer = setInterval(() => {
+    // If socket disconnected not gracefully.
+    console.log(socket.id, ' connected')
+    if (!io.sockets.sockets[socket.id]) {
+      clearInterval(socketTimer);
+      let roomId = userRoomMap[socket.id];
+      if (!roomId) return;
+      database.collection('chatGroups').findOneAndUpdate(
+        { _id: new ObjectID(roomId) },
+        { $inc: { numUsers: -1 } },
+        { returnOriginal: false },
+        function (err, chatRoom) {
+          io.to(roomId).emit('leaveRoom', chatRoom.value.numUsers, socket.id);
+        });
+      delete userRoomMap[socket.id]
+    }
+  }, 10000);
+
   // When socket disconnect.
   socket.on('disconnect', function () {
+    clearInterval(socketTimer);
     let roomId = userRoomMap[socket.id];
     if (!roomId) return;
     delete userRoomMap[socket.id]
-    console.log(roomId);
     console.log(socket.id,' user disconnected');
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
