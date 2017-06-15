@@ -127,7 +127,7 @@ io.on('connection', (socket) => {
       { $inc: { numUsers: 1 } },
       { returnOriginal: false },
       function (err, chatRoom) {
-        io.to(roomId).emit('enterRoom', chatRoom.value.numUsers, userName);
+        io.to(roomId).emit('enterRoom', chatRoom.value.numUsers, socket.id, userName);
       });
   });
 });
