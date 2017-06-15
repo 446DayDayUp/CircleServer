@@ -97,6 +97,7 @@ io.on('connection', (socket) => {
   // When socket disconnect.
   socket.on('disconnecting', function () {
     let roomId = Object.keys(socket.rooms).filter((id) => id !== socket.id)[0];
+    console.log(socket.rooms);
     console.log(roomId);
     console.log(socket.id,' user disconnected');
     database.collection('chatGroups').findOneAndUpdate(
