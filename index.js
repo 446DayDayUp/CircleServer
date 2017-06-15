@@ -6,8 +6,9 @@ const io = require('socket.io')(server);
 const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
+const DB_URL = process.env.MONGODB_URI;
 const ObjectID = require('mongodb').ObjectID
-const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
+
 let database = null;
 const bodyParser = require('body-parser')
 
