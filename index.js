@@ -98,6 +98,7 @@ io.on('connection', (socket) => {
   // When socket disconnect.
   socket.on('disconnect', function () {
     let roomId = userRoomMap[socket.id];
+    if (!roomId) return;
     delete userRoomMap[socket.id]
     console.log(roomId);
     console.log(socket.id,' user disconnected');
