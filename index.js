@@ -35,6 +35,27 @@ app.get('/',function(req,res){
   res.redirect('https://446daydayup.github.io/');
 })
 
+// API for find one chat room by room id.
+app.get('/get-chat-room', (req, res) => {
+  let { roomId } = req.query;
+  if (!roomId) {
+    res.status(500).send('Need param roomId!');
+    return;
+  }
+  if (!database) {
+    res.status(500).send('Database uninitialized!');
+    return;
+  }
+  database.collection('chatGroups').findOne(
+    { _id: new ObjectID(roomId) },
+    null,
+    function (err, chatRoom) {
+      if (err) res.status(500).send(err.toString());
+      res.send(chatRoom);
+    });
+  }
+});
+
 // API for get and filter nearby chat rooms.
 app.get('/get-chat-rooms', (req, res) => {
   let {lat, lng, range} = req.query;
