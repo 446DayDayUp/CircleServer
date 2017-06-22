@@ -137,7 +137,7 @@ io.on('connection', (socket) => {
 
   // Socket enter a specific room by room id.
   socket.on('room', function (roomId, userName) {
-    console.log(socket.id, ' joins ', roomId)
+    console.log(socket.id, ' joins ', roomId, ' userName': userName);
     socket.join(roomId);
     userRoomMap[socket.id] = roomId;
     database.collection('chatGroups').findOneAndUpdate(
