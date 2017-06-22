@@ -3,12 +3,12 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js');
 const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
+const DB_URL = process.env.MONGODB_URI;
 const ObjectID = require('mongodb').ObjectID
-const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
+
 let database = null;
 const bodyParser = require('body-parser')
 let userRoomMap = {};
@@ -137,7 +137,7 @@ io.on('connection', (socket) => {
 
   // Socket enter a specific room by room id.
   socket.on('room', function (roomId, userName) {
-    console.log(socket.id, ' joins ', roomId)
+    console.log(socket.id, ' joins ', roomId, ' userName': userName);
     socket.join(roomId);
     userRoomMap[socket.id] = roomId;
     database.collection('chatGroups').findOneAndUpdate(
