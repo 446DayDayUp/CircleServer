@@ -52,7 +52,7 @@ app.get('/get-chat-room', (req, res) => {
     function (err, chatRoom) {
       if (err) res.status(500).send(err.toString());
       res.send(chatRoom);
-    });
+    })
   }
 });
 
