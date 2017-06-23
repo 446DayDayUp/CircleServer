@@ -3,11 +3,10 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js');
 const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
-const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
+const DB_URL = process.env.MONGODB_URI;
 const ObjectID = require('mongodb').ObjectID
 
 let database = null;
