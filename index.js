@@ -95,7 +95,7 @@ app.post('/create-chat-room',function(req,res){
     res.status(500).send('Need params: lat, lng, range!');
     return;
   }
-  database.collection('chatGroups').insert({
+  database.collection('chatGroups').insertOne({
     name,
     tags,
     lat,
@@ -106,7 +106,7 @@ app.post('/create-chat-room',function(req,res){
     if (err) {
       res.status(500).send('Inser error: ', err.toString());
     } else {
-      res.send(result.insertedIds[0]);
+      res.send(result.ops[0]);
     }
   });
 });
