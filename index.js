@@ -135,10 +135,8 @@ io.on('connection', (socket) => {
     let roomIds = Object.keys(socket.rooms);
     console.log(roomIds);
     database.collection('chatGroups').updateMany(
-      { _id: { $in: roomIds.map((id) => {
-        console.log(id);
-        return new ObjectID(id);
-      } ) } },
+      { _id: { $in: roomIds.filter((id) => id.length == 24).map(
+        (id) => new ObjectID(id))} },
       { $inc: { numUsers: -1 } },
       { returnOriginal: false },
       function (err, docs) {
@@ -154,8 +152,10 @@ io.on('connection', (socket) => {
   // Socket enter a specific room by room id.
   socket.on('room', function (roomId, userName, uid) {
     console.log(socket.id, ' joins ', roomId, ' userName:', userName);
+    socket.join(roomId);
     database.collection('chatGroups').findOneAndUpdate(
-      { _id: new ObjectID(roomId) },
+      { _id: { $in: roomIds.filter((id) => id.length == 24).map(
+        (id) => new ObjectID(id))} },
       { $inc: { numUsers: 1 } },
       { returnOriginal: false },
       function (err, chatRoom) {
