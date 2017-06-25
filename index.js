@@ -132,8 +132,8 @@ io.on('connection', (socket) => {
   // When socket disconnect.
   socket.on('disconnecting', function () {
     clearInterval(socketTimer);
-    console.log(roomIds);
     let roomIds = Object.keys(socket.rooms);
+    console.log(roomIds);
     database.collection('chatGroups').updateMany(
       { _id: { $in: roomIds.map((id) => new ObjectID(id)) } },
       { $inc: { numUsers: -1 } },
@@ -151,7 +151,6 @@ io.on('connection', (socket) => {
   // Socket enter a specific room by room id.
   socket.on('room', function (roomId, userName, uid) {
     console.log(socket.id, ' joins ', roomId, ' userName:', userName);
-    socket.join(roomId);
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
       { $inc: { numUsers: 1 } },
