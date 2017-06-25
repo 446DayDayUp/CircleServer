@@ -165,7 +165,20 @@ io.on('connection', (socket) => {
       { $inc: { numUsers: 1 } },
       { returnOriginal: false },
       function (err, chatRoom) {
-        io.to(roomId).emit('enterRoom', chatRoom.value.numUsers, socket.id, userName);
+        io.to(roomId).emit('enterRoom', chatRoom.value.numUsers, roomId, uid, userName);
+      });
+  });
+
+  // Quit a room.
+  socket.on('quit', function (roomId) {
+    console.log(socket.id, ' quit ', roomId);
+    socket.leave(roomId);
+    database.collection('chatGroups').findOneAndUpdate(
+      { _id: new ObjectID(roomId) },
+      { $inc: { numUsers: -1 } },
+      { returnOriginal: false },
+      function (err, chatRoom) {
+        // Do nothing
       });
   });
 });
