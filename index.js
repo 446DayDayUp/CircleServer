@@ -115,11 +115,10 @@ io.on('connection', (socket) => {
 
   let socketTimer = setInterval(() => {
     // If socket disconnected not gracefully.
-    console.log(socket.id, ' connected')
-
     if (!io.sockets.sockets[socket.id]) {
       clearInterval(socketTimer);
       let roomIds = Object.keys(socket.rooms);
+      console.log(roomIds)
       database.collection('chatGroups').updateMany(
         { _id: { $in: roomIds.map((id) => new ObjectID(id)) } },
         { $inc: { numUsers: -1 } },
