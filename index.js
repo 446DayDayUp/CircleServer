@@ -135,7 +135,10 @@ io.on('connection', (socket) => {
     let roomIds = Object.keys(socket.rooms);
     console.log(roomIds);
     database.collection('chatGroups').updateMany(
-      { _id: { $in: roomIds.map((id) => new ObjectID(id)) } },
+      { _id: { $in: roomIds.map((id) => {
+        console.log(id);
+        return new ObjectID(id);
+      } ) } },
       { $inc: { numUsers: -1 } },
       { returnOriginal: false },
       function (err, docs) {
