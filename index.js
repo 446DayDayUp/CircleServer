@@ -11,7 +11,6 @@ const ObjectID = require('mongodb').ObjectID
 
 let database = null;
 const bodyParser = require('body-parser')
-let userRoomMap = {};
 
 MongoClient.connect(DB_URL, (err, db) => {
   database = db;
@@ -117,48 +116,42 @@ io.on('connection', (socket) => {
   let socketTimer = setInterval(() => {
     // If socket disconnected not gracefully.
     console.log(socket.id, ' connected')
+
     if (!io.sockets.sockets[socket.id]) {
       clearInterval(socketTimer);
-      let roomId = userRoomMap[socket.id];
-      if (!roomId) return;
-      database.collection('chatGroups').findOneAndUpdate(
-        { _id: new ObjectID(roomId) },
+      let roomIds = Object.keys(socket.rooms);
+      database.collection('chatGroups').updateMany(
+        { _id: { $in: roomIds.map((id) => new ObjectID(id)) } },
         { $inc: { numUsers: -1 } },
         { returnOriginal: false },
-        function (err, chatRoom) {
-          io.to(roomId).emit('leaveRoom', chatRoom.value.numUsers, socket.id);
+        function (err, docs) {
+          // Do nothing
         });
-      delete userRoomMap[socket.id]
     }
   }, 10000);
 
   // When socket disconnect.
-  socket.on('disconnect', function () {
+  socket.on('disconnecting', function () {
     clearInterval(socketTimer);
-    let roomId = userRoomMap[socket.id];
-    if (!roomId) return;
-    delete userRoomMap[socket.id]
-    console.log(socket.id,' user disconnected');
-    database.collection('chatGroups').findOneAndUpdate(
-      { _id: new ObjectID(roomId) },
+    let roomIds = Object.keys(socket.rooms);
+    database.collection('chatGroups').updateMany(
+      { _id: { $in: roomIds.map((id) => new ObjectID(id)) } },
       { $inc: { numUsers: -1 } },
       { returnOriginal: false },
-      function (err, chatRoom) {
-        io.to(roomId).emit('leaveRoom', chatRoom.value.numUsers, socket.id);
+      function (err, docs) {
+        // Do nothing
       });
   });
 
   // Receive and send chat messages.
-  socket.on('chat', function(room, userName, iconName, msg){
-    io.to(room).emit('chat', socket.id, userName, iconName, msg);
-    console.log('message: ', msg, ' room: ', room);
+  socket.on('chat', function(roomId, uid, userName, iconName, msg){
+    io.to(room).emit('chat', roomId, uid, userName, iconName, msg);
   });
 
   // Socket enter a specific room by room id.
-  socket.on('room', function (roomId, userName) {
+  socket.on('room', function (roomId, userName, uid) {
     console.log(socket.id, ' joins ', roomId, ' userName:', userName);
     socket.join(roomId);
-    userRoomMap[socket.id] = roomId;
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
       { $inc: { numUsers: 1 } },
