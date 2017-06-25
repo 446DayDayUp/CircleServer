@@ -145,7 +145,7 @@ io.on('connection', (socket) => {
 
   // Receive and send chat messages.
   socket.on('chat', function(roomId, uid, userName, iconName, msg){
-    io.to(room).emit('chat', roomId, uid, userName, iconName, msg);
+    io.to(roomId).emit('chat', roomId, uid, userName, iconName, msg);
   });
 
   // Socket enter a specific room by room id.
