@@ -3,11 +3,10 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const {DB_USERNAME, DB_PASSWORD} = require('./config/mongodb.js');
 const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
-const DB_URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@ds155961.mlab.com:55961/heroku_qjtg66vs`;
+const DB_URL = process.env.MONGODB_URI;
 const ObjectID = require('mongodb').ObjectID
 
 let database = null;
@@ -121,6 +120,7 @@ io.on('connection', (socket) => {
       let roomIds = Object.keys(socket.rooms);
       console.log(roomIds);
       database.collection('chatGroups').updateMany(
+        // room id is a string with 24 hex characters.
         { _id: { $in: roomIds.filter((id) => id.length == 24).map(
           (id) => new ObjectID(id))} },
         { $inc: { numUsers: -1 } },
@@ -134,6 +134,7 @@ io.on('connection', (socket) => {
   // When socket disconnect.
   socket.on('disconnecting', function () {
     clearInterval(socketTimer);
+    // room id is a string with 24 hex characters.
     let roomIds = Object.keys(socket.rooms);
     console.log(roomIds);
     database.collection('chatGroups').updateMany(
