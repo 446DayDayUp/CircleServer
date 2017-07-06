@@ -112,7 +112,8 @@ app.post('/create-chat-room', function(req, res){
 });
 
 app.post('/upload-image', function(req, res) {
-  console.log("upload-image", req.body);
+  console.log("upload-image", req, req.body);
+  res.send('ok')
 })
 
 io.on('connection', (socket) => {
