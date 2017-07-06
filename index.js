@@ -28,6 +28,7 @@ app.use(function (req, res, next) {
 });
 
 // Add body parser.
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Redirect to the landing page for the project.
