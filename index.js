@@ -10,13 +10,12 @@ const DB_URL = process.env.MONGODB_URI;
 const ObjectID = require('mongodb').ObjectID;
 
 const imageCache = {}; // Cache uploaded images.
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 
 let database = null;
 const bodyParser = require('body-parser');
-const multer  = require('multer')
-
+const multer  = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 MongoClient.connect(DB_URL, (err, db) => {
   database = db;
