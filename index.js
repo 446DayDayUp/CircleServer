@@ -31,7 +31,7 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 
 // Redirect to the landing page for the project.
-app.get('/',function(req,res){
+app.get('/', function(req,res){
   res.redirect('https://446daydayup.github.io/');
 })
 
@@ -112,7 +112,7 @@ app.post('/create-chat-room', function(req, res){
 });
 
 app.post('upload-image', function(req, res) {
-  console.log("upload-image", req);
+  console.log("upload-image", req.body);
 })
 
 io.on('connection', (socket) => {
