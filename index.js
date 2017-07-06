@@ -35,6 +35,7 @@ app.use(function (req, res, next) {
 });
 
 // Add body parser.
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Redirect to the landing page for the project.
@@ -126,6 +127,7 @@ app.post('/upload-image', upload.single('imageFile'), function(req, res) {
 })
 
 app.get('/get-image/:id', function(req, res) {
+  if (!imageCache[req.params.id]) res.status(500).send('Image not found');
   res.send(imageCache[req.params.id]);
 })
 
