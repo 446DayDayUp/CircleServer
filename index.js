@@ -7,7 +7,8 @@ const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
 const DB_URL = process.env.MONGODB_URI;
-const ObjectID = require('mongodb').ObjectID
+const ObjectID = require('mongodb').ObjectID;
+const imageCache = {}; // Cache uploaded images.
 
 let database = null;
 const bodyParser = require('body-parser')
@@ -83,7 +84,7 @@ app.get('/get-chat-rooms', (req, res) => {
 });
 
 // API for create chat room.
-app.post('/create-chat-room',function(req,res){
+app.post('/create-chat-room', function(req, res){
   let {name, tags, lat, lng, range} = req.body;
   tags = tags || [];
   if (!database) {
@@ -109,6 +110,10 @@ app.post('/create-chat-room',function(req,res){
     }
   });
 });
+
+app.post('upload-image', function(req, res) {
+  console.log("upload-image", req);
+})
 
 io.on('connection', (socket) => {
   console.log(socket.id,' a user connected');
