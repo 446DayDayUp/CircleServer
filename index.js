@@ -122,7 +122,7 @@ app.post('/create-chat-room', function(req, res){
 app.post('/upload-image', upload.single('imageFile'), function(req, res) {
   if (!req.body.imageName || !req.file) res.status(500).send('Need imageName and imageFile');
   imageCache[req.body.imageName] = req.file;
-  console.log(req.body.imageName);
+  console.log(imageCache);
   res.status(200);
 })
 
