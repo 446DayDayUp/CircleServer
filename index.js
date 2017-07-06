@@ -8,10 +8,15 @@ const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 const MongoClient = require('mongodb').MongoClient;
 const DB_URL = process.env.MONGODB_URI;
 const ObjectID = require('mongodb').ObjectID;
+
 const imageCache = {}; // Cache uploaded images.
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 let database = null;
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const multer  = require('multer')
+
 
 MongoClient.connect(DB_URL, (err, db) => {
   database = db;
@@ -112,9 +117,9 @@ app.post('/create-chat-room', function(req, res){
   });
 });
 
-app.post('/upload-image', function(req, res) {
-  console.log("upload-image", req, req.body);
-  res.send('ok')
+app.post('/upload-image', upload.single('imageFile'), function(req, res) {
+  console.log("upload-image", req.body);
+  console.log("upload-image", req.file);
 })
 
 io.on('connection', (socket) => {
