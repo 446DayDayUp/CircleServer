@@ -7,7 +7,8 @@ const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
 
 const MongoClient = require('mongodb').MongoClient;
 const DB_URL = process.env.MONGODB_URI;
-const ObjectID = require('mongodb').ObjectID
+const ObjectID = require('mongodb').ObjectID;
+const imageCache = {}; // Cache uploaded images.
 
 let database = null;
 const bodyParser = require('body-parser')
@@ -83,7 +84,7 @@ app.get('/get-chat-rooms', (req, res) => {
 });
 
 // API for create chat room.
-app.post('/create-chat-room',function(req,res){
+app.post('/create-chat-room', function(req, res){
   let {name, tags, lat, lng, range} = req.body;
   tags = tags || [];
   if (!database) {
@@ -110,6 +111,10 @@ app.post('/create-chat-room',function(req,res){
   });
 });
 
+app.post('upload-image', function(req, res) {
+  console.log("upload-image", req);
+})
+
 io.on('connection', (socket) => {
   console.log(socket.id,' a user connected');
 
@@ -120,6 +125,7 @@ io.on('connection', (socket) => {
       let roomIds = Object.keys(socket.rooms);
       console.log(roomIds);
       database.collection('chatGroups').updateMany(
+        // room id is a string with 24 hex characters.
         { _id: { $in: roomIds.filter((id) => id.length == 24).map(
           (id) => new ObjectID(id))} },
         { $inc: { numUsers: -1 } },
@@ -133,6 +139,7 @@ io.on('connection', (socket) => {
   // When socket disconnect.
   socket.on('disconnecting', function () {
     clearInterval(socketTimer);
+    // room id is a string with 24 hex characters.
     let roomIds = Object.keys(socket.rooms);
     console.log(roomIds);
     database.collection('chatGroups').updateMany(
