@@ -20,6 +20,7 @@
   "homepage": "https://github.com/446DayDayUp/Server#readme",
   "dependencies": {
     "@google-cloud/datastore": "^1.0.3",
+    "@google-cloud/storage": "^1.2.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "mongodb": "^2.2.27",
