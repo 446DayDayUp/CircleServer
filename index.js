@@ -125,7 +125,7 @@ app.post('/upload-image', upload.single('imageFile'), uploadToGcs, function(req,
   if (req.file && req.file.cloudStoragePublicUrl) {
     data.imageUrl = req.file.cloudStoragePublicUrl;
   }
-  response.send(data);
+  res.send(data);
 })
 
 app.get('/get-image/:id', function(req, res) {
@@ -172,7 +172,7 @@ io.on('connection', (socket) => {
 
   // Receive and send chat messages.
   socket.on('chat', function(roomId, type, uid, userName, iconName, msg){
-    io.to(roomId).emit('chat', roomId, uid, userName, iconName, msg);
+    io.to(roomId).emit('chat', type, roomId, uid, userName, iconName, msg);
   });
 
   // Socket enter a specific room by room id.
