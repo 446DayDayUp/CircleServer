@@ -4,6 +4,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const {getSquireCord, mBetweenCoords} = require('./lib/location.js');
+const {uploadToGcs} = require('./lib/gcs.js');
 
 const MongoClient = require('mongodb').MongoClient;
 const DB_URL = process.env.MONGODB_URI;
@@ -119,11 +120,11 @@ app.post('/create-chat-room', function(req, res){
   });
 });
 
-app.post('/upload-image', upload.single('imageFile'), function(req, res) {
-  if (!req.body.imageName || !req.file) res.status(500).send('Need imageName and imageFile');
-  imageCache[req.body.imageName] = req.file;
-  console.log(req.body.imageName);
-  res.status(200);
+app.post('/upload-image', upload.single('imageFile'), uploadToGcs, function(req, res) {
+  if (req.file && req.file.cloudStoragePublicUrl) {
+    data.imageUrl = req.file.cloudStoragePublicUrl;
+  }
+  response.send(data);
 })
 
 app.get('/get-image/:id', function(req, res) {
