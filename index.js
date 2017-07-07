@@ -121,7 +121,7 @@ app.post('/create-chat-room', function(req, res){
 });
 
 app.post('/upload-image', upload.single('imageFile'), uploadToGcs, function(req, res) {
-  let data = {}
+  let data = {};
   if (req.file && req.file.cloudStoragePublicUrl) {
     data.imageUrl = req.file.cloudStoragePublicUrl;
   }
@@ -171,7 +171,7 @@ io.on('connection', (socket) => {
   });
 
   // Receive and send chat messages.
-  socket.on('chat', function(roomId, uid, userName, iconName, msg){
+  socket.on('chat', function(roomId, type, uid, userName, iconName, msg){
     io.to(roomId).emit('chat', roomId, uid, userName, iconName, msg);
   });
 
