@@ -172,7 +172,7 @@ io.on('connection', (socket) => {
 
   // Receive and send chat messages.
   socket.on('chat', function(roomId, type, uid, userName, iconName, msg){
-    io.to(roomId).emit('chat', type, roomId, uid, userName, iconName, msg);
+    io.to(roomId).emit('chat', roomId, type, uid, userName, iconName, msg);
   });
 
   // Socket enter a specific room by room id.
