@@ -123,7 +123,7 @@ app.post('/create-chat-room', function(req, res){
 app.post('/upload-file', upload.single('file'), uploadToGcs, function(req, res) {
   let data = {};
   if (req.file && req.file.cloudStoragePublicUrl) {
-    data.uri = req.file.cloudStoragePublicUrl;
+    data.url = req.file.cloudStoragePublicUrl;
   }
   res.send(data);
 })
