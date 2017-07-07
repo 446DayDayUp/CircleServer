@@ -124,7 +124,7 @@ app.post('/upload-image', upload.single('imageFile'), uploadToGcs, function(req,
   if (req.file && req.file.cloudStoragePublicUrl) {
     data.imageUrl = req.file.cloudStoragePublicUrl;
   }
-  response.send(data);
+  res.send(data);
 })
 
 app.get('/get-image/:id', function(req, res) {
