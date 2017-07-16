@@ -180,7 +180,7 @@ io.on('connection', (socket) => {
     console.log(socket.id, ' joins ', roomId, ' userName:', userName);
     socket.join(roomId);
     socket.join(uid);
-    if (roomId.length !== 12) return;
+    if (roomId.length !== 24) return;
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
       { $inc: { numUsers: 1 } },
