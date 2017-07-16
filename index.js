@@ -144,7 +144,7 @@ io.on('connection', (socket) => {
       console.log(roomIds);
       database.collection('chatGroups').updateMany(
         // room id is a string with 24 hex characters.
-        { _id: { $in: roomIds.filter((id) => id.length == 24).map(
+        { _id: { $in: roomIds.filter((id) => id.length === 24).map(
           (id) => new ObjectID(id))} },
         { $inc: { numUsers: -1 } },
         { returnOriginal: false },
