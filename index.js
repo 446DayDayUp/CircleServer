@@ -173,6 +173,10 @@ io.on('connection', (socket) => {
   // Receive and send chat messages.
   socket.on('chat', function(roomId, type, uid, userName, iconName, msg, opt){
     io.to(roomId).emit('chat', roomId, type, uid, userName, iconName, msg, opt);
+    if (roomId.length !==  24) {
+      // Send message to sender if this message is a private message.
+      io.to(uid).emit('chat', roomId, type, uid, userName, iconName, msg, opt);
+    }
   });
 
   // Socket enter a specific room by room id.
