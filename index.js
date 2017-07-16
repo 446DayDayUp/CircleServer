@@ -179,6 +179,8 @@ io.on('connection', (socket) => {
   socket.on('room', function (roomId, userName, uid) {
     console.log(socket.id, ' joins ', roomId, ' userName:', userName);
     socket.join(roomId);
+    socket.join(uid);
+    if (roomId.length !== 12) return;
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
       { $inc: { numUsers: 1 } },
