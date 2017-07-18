@@ -198,6 +198,7 @@ io.on('connection', (socket) => {
   socket.on('quit', function (roomId) {
     console.log(socket.id, ' quit ', roomId);
     socket.leave(roomId);
+    if (roomId.length !== 24) return;
     database.collection('chatGroups').findOneAndUpdate(
       { _id: new ObjectID(roomId) },
       { $inc: { numUsers: -1 } },
